@@ -241,6 +241,24 @@ class JSONSubscriptTests: XCTestCase {
         }
     }
     
+    func testThatStringMakesOptionalIfNotFound() {
+        do {
+            let drew = try json.string("people", 2, "nam", ifNotFound: true)
+            XCTAssertNil(drew, "`drew` should be `nil`")
+        } catch {
+            XCTFail("`drew` should be `nil`")
+        }
+    }
+    
+    func testThatBoolMakesOptionalIfNotFound() {
+        do {
+            let success = try json.bool("succes", ifNotFound: true)
+            XCTAssertNil(success, "`success` should be `nil`")
+        } catch {
+            XCTFail("`success` should be `nil`")
+        }
+    }
+    
     func testThatArrayOfCreatesArrayOfPeople() {
         let testPeople = [ Person(name: "Matt Mathias", age: 32, spouse: true),
                            Person(name: "Drew Mathias", age: 33, spouse: true),
