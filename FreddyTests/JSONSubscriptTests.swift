@@ -194,6 +194,15 @@ class JSONSubscriptTests: XCTestCase {
         }
     }
     
+    func testJSONSubscriptingDecode() {
+        do {
+            let matt = try json.decode("people", 0, type: Person.self)
+            XCTAssertTrue(matt.name == "Matt Mathias", "`matt`'s name should be 'Matt Mathias'")
+        } catch {
+            XCTFail("`matt`'s name should be 'Matt Mathias'")
+        }
+    }
+    
 }
 
 class JSONSubscriptWithNSJSONTests: JSONSubscriptTests {
