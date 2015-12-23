@@ -203,6 +203,16 @@ class JSONSubscriptTests: XCTestCase {
         }
     }
     
+    func testThatDoubleMakesCorrectNumberAtPath() {
+        let sampleJSON: JSON = [ "stock_prices": [ [ "AAA": 1.23 ], [ "BBB": 4.56 ] ] ]
+        do {
+            let onePointTwoThree = try sampleJSON.double("stock_prices", 0, "AAA")
+            XCTAssertTrue(onePointTwoThree == 1.23, "Path in `JSON` should produce 1.23")
+        } catch {
+            XCTFail("Path in `JSON` should produce 1.23")
+        }
+    }
+    
 }
 
 class JSONSubscriptWithNSJSONTests: JSONSubscriptTests {

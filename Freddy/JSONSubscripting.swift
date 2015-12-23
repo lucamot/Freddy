@@ -81,7 +81,8 @@ extension JSON {
     }
 
     /// Attempts to decode into the returning type from a path into JSON.
-    /// - parameter path: 0 or more `String` or `Int` that subscript the `JSON`
+    /// - parameter first: An initial `String` or `Int` that describes a path into the `JSON`
+    /// - parameter rest: 0 or more `String`s or `Int`s that describe the rest of the path into the `JSON`
     /// - parameter type: If the context this method is called from does not
     ///   make the return type clear, pass a type implementing `JSONDecodable`
     ///   to disambiguate the type to decode with.
