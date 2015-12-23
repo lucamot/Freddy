@@ -168,6 +168,32 @@ class JSONSubscriptTests: XCTestCase {
             XCTFail("The error should be due to the `people` `Array` not being subscriptable with `String`s, but was: \(error).")
         }
     }
+    
+    func testJSONKeySubscript() {
+        if let success = json["success"] {
+            do {
+                let tru = try success.bool()
+                XCTAssertTrue(tru, "Success should be `true`")
+            } catch {
+                XCTFail("Success should be `true`")
+            }
+        } else {
+            XCTFail("Success should be `true`")
+        }
+    }
+    
+    func testJSONIndexSubscript() {
+        let numbers: JSON = [1,2,3,4]
+        let twoJSON = numbers[1]
+        do {
+            if let two = try twoJSON?.int() {
+                XCTAssertTrue(two == 2, "`two` should be equal to 2")
+            }
+        } catch {
+            XCTFail("`two` should be equal to 2")
+        }
+    }
+    
 }
 
 class JSONSubscriptWithNSJSONTests: JSONSubscriptTests {
