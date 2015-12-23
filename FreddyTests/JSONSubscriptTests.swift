@@ -222,6 +222,16 @@ class JSONSubscriptTests: XCTestCase {
         }
     }
     
+    func testThatDoubleMakesOptionalIfNotFound() {
+        let sampleJSON: JSON = [ "stock_prices": [ [ "AAA": 1.23 ], [ "BBB": 4.56 ] ] ]
+        do {
+            let onePointTwoThree = try sampleJSON.double("stock_prices", 0, "AA", ifNotFound: true)
+            XCTAssertNil(onePointTwoThree, "`onePointTwoThree` should be `nil`")
+        } catch {
+            XCTFail("`onePointTwoThree` should be `nil`")
+        }
+    }
+    
     func testThatArrayOfCreatesArrayOfPeople() {
         let testPeople = [ Person(name: "Matt Mathias", age: 32, spouse: true),
                            Person(name: "Drew Mathias", age: 33, spouse: true),
