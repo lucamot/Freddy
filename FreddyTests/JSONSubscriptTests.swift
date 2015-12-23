@@ -187,7 +187,7 @@ class JSONSubscriptTests: XCTestCase {
         let twoJSON = numbers[1]
         do {
             if let two = try twoJSON?.int() {
-                XCTAssertTrue(two == 2, "`two` should be equal to 2")
+                XCTAssertEqual(two, 2, "`two` should be equal to 2")
             }
         } catch {
             XCTFail("`two` should be equal to 2")
@@ -216,7 +216,7 @@ class JSONSubscriptTests: XCTestCase {
         let sampleJSON: JSON = [ "stock_prices": [ [ "AAA": 1.23 ], [ "BBB": 4.56 ] ] ]
         do {
             let onePointTwoThree = try sampleJSON.double("stock_prices", 0, "AAA")
-            XCTAssertTrue(onePointTwoThree == 1.23, "Path in `JSON` should produce 1.23")
+            XCTAssertEqual(onePointTwoThree, 1.23, "Path in `JSON` should produce 1.23")
         } catch {
             XCTFail("Path in `JSON` should produce 1.23")
         }
@@ -265,7 +265,7 @@ class JSONSubscriptTests: XCTestCase {
                            Person(name: "Sergeant Pepper", age: 25, spouse: false) ]
         do {
             let people = try json.arrayOf("people", type: Person.self)
-            XCTAssertTrue(people == testPeople, "`people` should be equal to `testPeople`")
+            XCTAssertEqual(people, testPeople, "`people` should be equal to `testPeople`")
         } catch {
             XCTFail("`people` should be equal to `testPeople`")
         }
