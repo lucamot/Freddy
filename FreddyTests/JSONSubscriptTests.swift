@@ -203,6 +203,15 @@ class JSONSubscriptTests: XCTestCase {
         }
     }
     
+    func testJSONSubscriptingOptionalDecode() {
+        do {
+            let matt = try json.decode("peopl", 0, ifNotFound: true, type: Person.self)
+            XCTAssertNil(matt, "`matt` should be `nil`")
+        } catch {
+            XCTFail("`matt` should be an optional with value of `nil`")
+        }
+    }
+    
     func testThatDoubleMakesCorrectNumberAtPath() {
         let sampleJSON: JSON = [ "stock_prices": [ [ "AAA": 1.23 ], [ "BBB": 4.56 ] ] ]
         do {
