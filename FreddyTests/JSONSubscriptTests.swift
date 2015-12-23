@@ -104,7 +104,7 @@ class JSONSubscriptTests: XCTestCase {
         let jsonArray: JSON = [
             [ "name": "Matt Mathias", "age": 32, "spouse": true ],
             [ "name": "Drew Mathias", "age": 33, "spouse": true ],
-            [ "name": "Sargeant Pepper" ]
+            [ "name": "Sergeant Pepper" ]
         ]
         let data = try! jsonArray.serialize()
         let deserializedArray = try! JSON(data: data, usingParser: parser()).array()
@@ -210,6 +210,18 @@ class JSONSubscriptTests: XCTestCase {
             XCTAssertTrue(onePointTwoThree == 1.23, "Path in `JSON` should produce 1.23")
         } catch {
             XCTFail("Path in `JSON` should produce 1.23")
+        }
+    }
+    
+    func testThatArrayOfCreatesArrayOfPeople() {
+        let testPeople = [ Person(name: "Matt Mathias", age: 32, spouse: true),
+                           Person(name: "Drew Mathias", age: 33, spouse: true),
+                           Person(name: "Sergeant Pepper", age: 25, spouse: false) ]
+        do {
+            let people = try json.arrayOf("people", type: Person.self)
+            XCTAssertTrue(people == testPeople, "`people` should be equal to `testPeople`")
+        } catch {
+            XCTFail("`people` should be equal to `testPeople`")
         }
     }
     
