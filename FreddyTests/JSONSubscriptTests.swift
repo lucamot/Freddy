@@ -232,6 +232,15 @@ class JSONSubscriptTests: XCTestCase {
         }
     }
     
+    func testThatIntMakesOptionalIfNotFound() {
+        do {
+            let threeZeroThreeZeroOne = try json.int("states", "Georgia", 4, ifNotFound: true)
+            XCTAssertNil(threeZeroThreeZeroOne, "`threeZeroThreeZeroOne` should be `nil`")
+        } catch {
+            XCTFail("`threeZeroThreeZeroOne` should be `nil`")
+        }
+    }
+    
     func testThatArrayOfCreatesArrayOfPeople() {
         let testPeople = [ Person(name: "Matt Mathias", age: 32, spouse: true),
                            Person(name: "Drew Mathias", age: 33, spouse: true),
