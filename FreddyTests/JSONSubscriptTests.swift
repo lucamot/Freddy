@@ -259,6 +259,16 @@ class JSONSubscriptTests: XCTestCase {
         }
     }
     
+    func testThatArrayMakesOptionalIfNull() {
+        do {
+            let sampleJSON: JSON = ["people": .Null]
+            let testJSON = try sampleJSON.array("people", ifNull: true)
+            XCTAssertNil(testJSON, "`testJSON` should be `nil`")
+        } catch {
+            XCTFail("`testJSON` should be `nil`")
+        }
+    }
+    
     func testThatArrayOfCreatesArrayOfPeople() {
         let testPeople = [ Person(name: "Matt Mathias", age: 32, spouse: true),
                            Person(name: "Drew Mathias", age: 33, spouse: true),
