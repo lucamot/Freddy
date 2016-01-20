@@ -279,6 +279,7 @@ class JSONSubscriptTests: XCTestCase {
         } catch {
             XCTFail("`people` should be equal to `testPeople`")
         }
+    }
 
     func testThatOptionalSubscriptiongIntoNullSucceeds() {
         let earlyNull = [ "foo": nil ] as JSON
