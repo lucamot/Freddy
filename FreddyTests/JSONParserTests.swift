@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import Freddy
+import Freddy
 
 private func ==(lhs: JSONParser.Error, rhs: JSONParser.Error) -> Bool {
     switch (lhs, rhs) {
@@ -49,6 +49,18 @@ class JSONParserTests: XCTestCase {
         return try parser.parse()
     }
 
+    func testThatParserThrowsAnErrorForAnEmptyNSData() {
+        
+        do {
+            _ = try JSONFromString("")
+            XCTFail("Unexpectedly did not throw an error") 
+        } catch let error as JSONParser.Error {
+            XCTAssert(error == JSONParser.Error.EndOfStreamUnexpected)
+        } catch {
+            XCTFail("Unexpected error \(error)")
+        }
+    }
+    
     func testThatParserUnderstandsNull() {
         let value = try! JSONFromString("null")
         XCTAssertEqual(value, JSON.Null)

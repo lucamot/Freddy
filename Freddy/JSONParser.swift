@@ -100,17 +100,21 @@ public struct JSONParser {
         guard depth <= ParserMaximumDepth else {
             throw Error.ExceededNestingLimit(offset: loc)
         }
+        
+        guard input.count > 0 else {
+            throw Error.EndOfStreamUnexpected
+        }
 
         advancing: while loc < input.count {
             switch input[loc] {
             case Literal.LEFT_BRACKET:
-                ++depth
-                defer { --depth }
+                depth += 1
+                defer { depth -= 1 }
                 return try decodeArray()
 
             case Literal.LEFT_BRACE:
-                ++depth
-                defer { --depth }
+                depth += 1
+                defer { depth -= 1 }
                 return try decodeObject()
 
             case Literal.DOUBLE_QUOTE:
@@ -135,7 +139,7 @@ public struct JSONParser {
                 return try decodeNumberPreDecimalDigits(loc)
 
             case Literal.SPACE, Literal.TAB, Literal.RETURN, Literal.NEWLINE:
-                ++loc
+                loc = loc.successor()
 
             default:
                 break advancing
@@ -149,7 +153,7 @@ public struct JSONParser {
         while loc < input.count {
             switch input[loc] {
             case Literal.SPACE, Literal.TAB, Literal.RETURN, Literal.NEWLINE:
-                ++loc
+                loc = loc.successor()
 
             default:
                 return
@@ -206,12 +210,13 @@ public struct JSONParser {
     private var stringDecodingBuffer = [UInt8]()
     private mutating func decodeString() throws -> JSON {
         let start = loc
-        ++loc
+        loc = loc.successor()
         stringDecodingBuffer.removeAll(keepCapacity: true)
         while loc < input.count {
             switch input[loc] {
             case Literal.BACKSLASH:
-                switch input[++loc] {
+                loc = loc.successor()
+                switch input[loc] {
                 case Literal.DOUBLE_QUOTE: stringDecodingBuffer.append(Literal.DOUBLE_QUOTE)
                 case Literal.BACKSLASH:    stringDecodingBuffer.append(Literal.BACKSLASH)
                 case Literal.SLASH:        stringDecodingBuffer.append(Literal.SLASH)
@@ -231,10 +236,10 @@ public struct JSONParser {
                 default:
                     throw Error.ControlCharacterUnrecognized(offset: loc)
                 }
-                ++loc
+                loc = loc.successor()
 
             case Literal.DOUBLE_QUOTE:
-                ++loc
+                loc = loc.successor()
                 stringDecodingBuffer.append(0)
 
                 guard let string = (stringDecodingBuffer.withUnsafeBufferPointer {
@@ -247,7 +252,7 @@ public struct JSONParser {
 
             case let other:
                 stringDecodingBuffer.append(other)
-                ++loc
+                loc = loc.successor()
             }
         }
 
@@ -291,14 +296,14 @@ public struct JSONParser {
 
     private mutating func decodeArray() throws -> JSON {
         let start = loc
-        ++loc
+        loc = loc.successor()
         var items = [JSON]()
 
         while loc < input.count {
             skipWhitespace()
 
             if loc < input.count && input[loc] == Literal.RIGHT_BRACKET {
-                ++loc
+                loc = loc.successor()
                 return .Array(items)
             }
 
@@ -306,7 +311,7 @@ public struct JSONParser {
                 guard loc < input.count && input[loc] == Literal.COMMA else {
                     throw Error.CollectionMissingSeparator(offset: start)
                 }
-                ++loc
+                loc = loc.successor()
             }
 
             items.append(try parseValue())
@@ -343,14 +348,14 @@ public struct JSONParser {
 
     private mutating func decodeObject() throws -> JSON {
         let start = loc
-        ++loc
+        loc = loc.successor()
         var pairs = decodeObjectBuffers.getBuffer()
 
         while loc < input.count {
             skipWhitespace()
 
             if loc < input.count && input[loc] == Literal.RIGHT_BRACE {
-                ++loc
+                loc = loc.successor()
                 var obj = [String:JSON](minimumCapacity: pairs.count)
                 for (k, v) in pairs {
                     obj[k] = v
@@ -363,7 +368,7 @@ public struct JSONParser {
                 guard loc < input.count && input[loc] == Literal.COMMA else {
                     throw Error.CollectionMissingSeparator(offset: start)
                 }
-                ++loc
+                loc = loc.successor()
 
                 skipWhitespace()
             }
@@ -378,7 +383,7 @@ public struct JSONParser {
             guard loc < input.count && input[loc] == Literal.COLON else {
                 throw Error.CollectionMissingSeparator(offset: start)
             }
-            ++loc
+            loc = loc.successor()
 
             pairs.append((key, try parseValue()))
         }
@@ -387,7 +392,7 @@ public struct JSONParser {
     }
 
     private mutating func decodeNumberNegative(start: Int) throws -> JSON {
-        ++loc
+        loc = loc.successor()
         guard loc < input.count else {
             throw Error.EndOfStreamUnexpected
         }
@@ -405,7 +410,7 @@ public struct JSONParser {
     }
 
     private mutating func decodeNumberLeadingZero(start: Int, sign: Sign = .Positive) throws -> JSON {
-        ++loc
+        loc = loc.successor()
         guard loc < input.count else {
             return .Int(0)
         }
@@ -430,7 +435,7 @@ public struct JSONParser {
             switch c {
             case Literal.zero...Literal.nine:
                 value = 10 * value + Int(c - Literal.zero)
-                ++loc
+                loc = loc.successor()
 
             case Literal.PERIOD:
                 return try decodeNumberDecimal(start, sign: sign, value: Double(value))
@@ -447,7 +452,7 @@ public struct JSONParser {
     }
 
     private mutating func decodeNumberDecimal(start: Int, sign: Sign, value: Double) throws -> JSON {
-        ++loc
+        loc = loc.successor()
         guard loc < input.count else {
             throw Error.EndOfStreamUnexpected
         }
@@ -461,7 +466,8 @@ public struct JSONParser {
         }
     }
 
-    private mutating func decodeNumberPostDecimalDigits(start: Int, sign: Sign, var value: Double) throws -> JSON {
+    private mutating func decodeNumberPostDecimalDigits(start: Int, sign: Sign, value inValue: Double) throws -> JSON {
+        var value = inValue
         var position = 0.1
 
         advancing: while loc < input.count {
@@ -470,7 +476,7 @@ public struct JSONParser {
             case Literal.zero...Literal.nine:
                 value += position * Double(c - Literal.zero)
                 position /= 10
-                ++loc
+                loc = loc.successor()
 
             case Literal.e, Literal.E:
                 return try decodeNumberExponent(start, sign: sign, value: value)
@@ -484,7 +490,7 @@ public struct JSONParser {
     }
 
     private mutating func decodeNumberExponent(start: Int, sign: Sign, value: Double) throws -> JSON {
-        ++loc
+        loc = loc.successor()
         guard loc < input.count else {
             throw Error.EndOfStreamUnexpected
         }
@@ -505,7 +511,7 @@ public struct JSONParser {
     }
 
     private mutating func decodeNumberExponentSign(start: Int, sign: Sign, value: Double, expSign: Sign) throws -> JSON {
-        ++loc
+        loc = loc.successor()
         guard loc < input.count else {
             throw Error.EndOfStreamUnexpected
         }
@@ -527,7 +533,7 @@ public struct JSONParser {
             switch c {
             case Literal.zero...Literal.nine:
                 exponent = exponent * 10 + Double(c - Literal.zero)
-                ++loc
+                loc = loc.successor()
 
             default:
                 break advancing
