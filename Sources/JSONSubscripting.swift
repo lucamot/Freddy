@@ -78,13 +78,13 @@ extension Int: JSONPathType {
 
 // MARK: - Subscripting core
 
-private extension JSON {
+extension JSON {
 
-    enum SubscriptError: ErrorType {
+    public enum SubscriptError: ErrorType {
         case SubscriptIntoNull(JSONPathType)
     }
 
-    func valueForPathFragment(fragment: JSONPathType, detectNull: Swift.Bool) throws -> JSON {
+    public func valueForPathFragment(fragment: JSONPathType, detectNull: Swift.Bool) throws -> JSON {
         switch self {
         case .Null where detectNull:
             throw SubscriptError.SubscriptIntoNull(fragment)
@@ -97,7 +97,7 @@ private extension JSON {
         }
     }
 
-    func valueAtPath(path: [JSONPathType], detectNull: Swift.Bool = false) throws -> JSON {
+    public func valueAtPath(path: [JSONPathType], detectNull: Swift.Bool = false) throws -> JSON {
         var result = self
         for fragment in path {
             result = try result.valueForPathFragment(fragment, detectNull: detectNull)

@@ -91,13 +91,13 @@ extension Bool: JSONDecodable {
     
 }
 
-internal extension JSON {
+extension JSON {
 
     /// Retrieves a `[JSON]` from the JSON.
     /// - returns: An `Array` of `JSON` elements
     /// - throws: Any of the `JSON.Error` cases thrown by `decode(type:)`.
     /// - seealso: `JSON.decode(_:type:)`
-    static func getArray(json: JSON) throws -> [JSON] {
+    static public func getArray(json: JSON) throws -> [JSON] {
         // Ideally should be expressed as a conditional protocol implementation on Swift.Array.
         guard case let .Array(array) = json else {
             throw Error.ValueNotConvertible(value: json, to: Swift.Array<JSON>)
@@ -109,7 +109,7 @@ internal extension JSON {
     /// - returns: An `Dictionary` of `String` mapping to `JSON` elements
     /// - throws: Any of the `JSON.Error` cases thrown by `decode(type:)`.
     /// - seealso: `JSON.decode(_:type:)`
-    static func getDictionary(json: JSON) throws -> [Swift.String: JSON] {
+    static public func getDictionary(json: JSON) throws -> [Swift.String: JSON] {
         // Ideally should be expressed as a conditional protocol implementation on Swift.Dictionary.
         guard case let .Dictionary(dictionary) = json else {
             throw Error.ValueNotConvertible(value: json, to: Swift.Dictionary<Swift.String, JSON>)
